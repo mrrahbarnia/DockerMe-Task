@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from . import schemas, http_exceptions
 from .http_response import HTTPResponse
 from ..dependencies import get_uow, get_session
+from ...domain import exceptions as domain_exc
 from ...domain.types import TaskId
 from ...service import queries, commands, exceptions as service_exc
 from ...service.unit_of_work import SqlAlchemyUnitOfWork
@@ -57,6 +58,41 @@ async def delete_task(
 
     except service_exc.EntityNotFound:
         raise http_exceptions.EntityNotFoundException(data={"task_id": str(task_id)})
+
+    except Exception as ex:
+        logger.error(ex)
+        raise http_exceptions.ServerError(data=str(ex))
+
+
+@app.post(
+    "/{task_id}/run",
+    status_code=status.HTTP_200_OK,
+    response_model=HTTPResponse[schemas.DetailTaskResponse],
+)
+async def run_task(
+    task_id: TaskId, uow: Annotated[SqlAlchemyUnitOfWork, Depends(get_uow)]
+) -> HTTPResponse[schemas.DetailTaskResponse]:
+    try:
+        task = await commands.run_task(uow=uow, task_id=task_id)
+        return HTTPResponse[schemas.DetailTaskResponse](
+            success=True,
+            message="Task ran successfully.",
+            data=schemas.DetailTaskResponse(
+                id=task.id,
+                title=task.title,
+                status=task.status,
+                created_at=task.created_at,
+            ),
+        )
+
+    except service_exc.EntityNotFound:
+        raise http_exceptions.EntityNotFoundException(data={"task_id": str(task_id)})
+
+    except domain_exc.TaskStatusIsNotPending as ex:
+        logger.warning(ex)
+        raise http_exceptions.BadRequestException(
+            data={"task_id": str(task_id)}, message="Task is not in PENDING status."
+        )
 
     except Exception as ex:
         logger.error(ex)

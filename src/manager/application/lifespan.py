@@ -4,6 +4,8 @@ from typing import AsyncGenerator
 
 from fastapi import FastAPI
 
+from src.events.bootstrap import bootstrap
+
 
 logger = logging.getLogger(__name__)
 
@@ -12,6 +14,9 @@ logger = logging.getLogger(__name__)
 async def lifespan(_application: FastAPI) -> AsyncGenerator:
     # ============================== On startup
     logger.info("Application is running...")
+
+    logger.info("Bootstrapping requirements...")
+    bootstrap()
 
     yield
     # ============================== On shutdown

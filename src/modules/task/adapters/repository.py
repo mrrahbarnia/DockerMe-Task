@@ -13,6 +13,7 @@ class IRepository(Protocol):
     async def get_by_id(self, id: TaskId, lock: bool = False) -> DomainTask | None: ...
     async def add(self, domain_task: DomainTask) -> None: ...
     async def delete(self, task_id: TaskId) -> TaskId | None: ...
+    async def update(self, domain_task: DomainTask) -> None: ...
 
 
 class SqlAlchemyRepository:
@@ -60,6 +61,14 @@ class SqlAlchemyRepository:
         stmt = sa.delete(ORMTask).where(ORMTask.id == task_id).returning(ORMTask.id)
 
         return await self.session.scalar(stmt)
+
+    async def update(self, domain_task: DomainTask) -> None:
+        stmt = (
+            sa.update(ORMTask)
+            .values({ORMTask.status: domain_task.status})
+            .where(ORMTask.id == domain_task.id)
+        )
+        await self.session.execute(stmt)
 
 
 class TestRepository:

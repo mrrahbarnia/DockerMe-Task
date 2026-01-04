@@ -1,7 +1,10 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime, timezone
 
+from . import exceptions as exc
 from .types import TaskId, TaskStatusEnum
+from .events import TaskRan
+from src.manager.common.constants import Event
 
 
 @dataclass
@@ -10,15 +13,19 @@ class Task:
     title: str
     status: TaskStatusEnum
     created_at: datetime
-    # If we want to send some events
-    # events:
+    events: list[Event] = field(default_factory=list)
 
     @staticmethod
     def create(id: TaskId, title: str) -> "Task":
-        # We can publish an event for projection layer here.
         return Task(
             id=id,
             title=title,
             status=TaskStatusEnum.PENDING,
             created_at=datetime.now(timezone.utc),
         )
+
+    def run(self):
+        if self.status != TaskStatusEnum.PENDING:
+            raise exc.TaskStatusIsNotPending
+        self.status = TaskStatusEnum.RUNNING
+        self.events.append(TaskRan(id=self.id))

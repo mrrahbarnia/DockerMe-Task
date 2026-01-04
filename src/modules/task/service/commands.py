@@ -18,3 +18,13 @@ async def delete_task(uow: IUnitOfWork, task_id: TaskId) -> None:
         task = await uow.tasks.delete(task_id)
         if not task:
             raise exc.EntityNotFound
+
+
+async def run_task(uow: IUnitOfWork, task_id: TaskId) -> DomainTask:
+    async with uow:
+        task = await uow.tasks.get_by_id(id=task_id, lock=True)
+        if not task:
+            raise exc.EntityNotFound
+        task.run()
+        await uow.tasks.update(domain_task=task)
+        return task
