@@ -1,4 +1,4 @@
-from typing import Protocol
+from typing import Protocol, Set
 
 import sqlalchemy as sa
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -9,6 +9,8 @@ from ..domain.models import Task as DomainTask
 
 
 class IRepository(Protocol):
+    _seen: Set[DomainTask] = set()
+
     def __init__(self, session: AsyncSession) -> None: ...
     async def get_by_id(self, id: TaskId, lock: bool = False) -> DomainTask | None: ...
     async def add(self, domain_task: DomainTask) -> None: ...
@@ -19,7 +21,7 @@ class IRepository(Protocol):
 class SqlAlchemyRepository:
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
-        # self._seen: Set[DomainBook] = set()
+        self._seen: Set[DomainTask] = set()
 
     async def get_by_id(self, id: TaskId, lock: bool = False) -> DomainTask | None:
         stmt = sa.select(ORMTask).where(ORMTask.id == id)
@@ -37,15 +39,15 @@ class SqlAlchemyRepository:
         if orm_task is None:
             return None
 
-        domain_book = DomainTask(
-            id=orm_task.id,
+        domain_task = DomainTask(
+            id=str(orm_task.id),  # type: ignore
             title=orm_task.title,
             status=orm_task.status,
             created_at=orm_task.created_at,
         )
-        # self._seen.add(domain_book)
+        self._seen.add(domain_task)
 
-        return domain_book
+        return domain_task
 
     async def add(self, domain_task: DomainTask) -> None:
         stmt = sa.insert(ORMTask).values(
@@ -55,6 +57,7 @@ class SqlAlchemyRepository:
                 ORMTask.status: domain_task.status,
             }
         )
+        self._seen.add(domain_task)
         await self.session.execute(stmt)
 
     async def delete(self, task_id: TaskId) -> TaskId | None:
@@ -68,6 +71,9 @@ class SqlAlchemyRepository:
             .values({ORMTask.status: domain_task.status})
             .where(ORMTask.id == domain_task.id)
         )
+
+        self._seen.add(domain_task)
+
         await self.session.execute(stmt)
 
 

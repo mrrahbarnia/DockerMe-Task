@@ -1,3 +1,5 @@
+import random
+from time import sleep
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 
@@ -7,13 +9,13 @@ from .events import TaskRan
 from src.manager.common.constants import Event
 
 
-@dataclass
+@dataclass(unsafe_hash=True)
 class Task:
     id: TaskId
     title: str
     status: TaskStatusEnum
     created_at: datetime
-    events: list[Event] = field(default_factory=list)
+    events: list[Event] = field(default_factory=list, hash=False, compare=False)
 
     @staticmethod
     def create(id: TaskId, title: str) -> "Task":
@@ -29,3 +31,12 @@ class Task:
             raise exc.TaskStatusIsNotPending
         self.status = TaskStatusEnum.RUNNING
         self.events.append(TaskRan(id=self.id))
+
+    def process(self):
+        # Blocking bussiness logic
+        sleep(10)
+        mocked_result = random.choice([-1, 1])
+        if mocked_result == 1:
+            self.status = TaskStatusEnum.DONE
+        else:
+            self.status = TaskStatusEnum.FAILED
