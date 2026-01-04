@@ -6,8 +6,8 @@ from sqlalchemy.ext.asyncio import (
 )
 
 from ..adapters.repository import (
-    IRepository as EventIRepository,
-    SqlAlchemyRepository as EventSqlAlchemyRepository,
+    IRepository as TaskIRepository,
+    SqlAlchemyRepository as TaskSqlAlchemyRepository,
 )
 from src.manager.dependencies.container import container
 
@@ -18,7 +18,7 @@ async_session_maker: async_sessionmaker[AsyncSession] = container.resolve(
 
 
 class IUnitOfWork(Protocol):
-    events: EventIRepository
+    tasks: TaskIRepository
 
     async def __aenter__(self) -> Self: ...
     async def __aexit__(
@@ -30,14 +30,14 @@ class IUnitOfWork(Protocol):
 
 
 class SqlAlchemyUnitOfWork:
-    events: EventIRepository
+    tasks: TaskIRepository
 
     def __init__(self, session_maker=async_session_maker) -> None:
         self.session_maker = session_maker
 
     async def __aenter__(self) -> Self:
         session = self.session_maker()
-        self.events = EventSqlAlchemyRepository(session)
+        self.tasks = TaskSqlAlchemyRepository(session)
         self.session = session
         return self
 

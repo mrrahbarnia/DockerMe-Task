@@ -1,7 +1,7 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from . import schemas
-from src.app.common.constants import Environment
+from src.manager.common.constants import Environment
 
 
 class _ENVS(BaseSettings):

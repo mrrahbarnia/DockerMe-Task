@@ -1,22 +1,22 @@
 services:
 
-  # app:
-  #   build: 
-  #     context: .
-  #     dockerfile: Dockerfile
-  #     target: testing
-  #   command: uvicorn src.manager.application:application --host=0.0.0.0 --reload
-  #   ports:
-  #     - '8000:8000'
-  #   volumes:
-  #     - ./src:/app/src/
-  #     - ./alembic.ini:/app/alembic.ini
-  #     - ./alembic:/app/alembic
-  #   env_file:
-  #     - ./.env
-  #   depends_on:
-  #     - db
-  #   restart: always
+  app:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+      target: testing
+    command: uvicorn src.manager.application:application --host=0.0.0.0 --reload
+    ports:
+      - '8000:8000'
+    volumes:
+      - ./src:/app/src/
+      - ./alembic.ini:/app/alembic.ini
+      - ./alembic:/app/alembic
+    env_file:
+      - ./.env
+    depends_on:
+      - db
+    restart: always
   
   # outbox:
   #   build: 

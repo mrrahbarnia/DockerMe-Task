@@ -40,6 +40,7 @@ class SqlAlchemyRepository:
             id=orm_task.id,
             title=orm_task.title,
             status=orm_task.status,
+            created_at=orm_task.created_at,
         )
         # self._seen.add(domain_book)
 

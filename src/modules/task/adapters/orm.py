@@ -5,7 +5,7 @@ import sqlalchemy as sa
 import sqlalchemy.orm as so
 
 from ..domain.types import TaskId, TaskStatusEnum
-from manager.common.db_metadata import BaseModel
+from src.manager.common.db_metadata import BaseModel
 
 
 class Task(BaseModel):
