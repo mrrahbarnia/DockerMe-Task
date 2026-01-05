@@ -12,6 +12,8 @@ services:
       - ./src:/app/src/
       - ./alembic.ini:/app/alembic.ini
       - ./alembic:/app/alembic
+      - ./tests:/app/tests
+      - ./pytest.ini:/app/pytest.ini
     env_file:
       - ./.env
     depends_on:
