@@ -40,7 +40,9 @@ class SqlAlchemyUnitOfWork:
     tasks: TaskIRepository
     events: EventIRepository
 
-    def __init__(self, session_maker=async_session_maker) -> None:
+    def __init__(
+        self, session_maker: async_sessionmaker[AsyncSession] = async_session_maker
+    ) -> None:
         self.session_maker = session_maker
 
     async def __aenter__(self) -> Self:
@@ -77,10 +79,10 @@ class SqlAlchemyUnitOfWork:
                 event = book.events.pop(0)
 
                 payload_bytes = orjson.dumps(asdict(event))  # type: ignore
-                payload_dict = orjson.loads(payload_bytes)
+                payload_json = orjson.loads(payload_bytes)
 
                 await self.events.add(
-                    event_type=event.__class__.__name__, payload=payload_dict
+                    event_type=event.__class__.__name__, payload=payload_json
                 )
 
 

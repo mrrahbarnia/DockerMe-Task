@@ -2,6 +2,7 @@ import random
 from time import sleep
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
+from uuid import uuid4
 
 from . import exceptions as exc
 from .types import TaskId, TaskStatusEnum
@@ -18,21 +19,21 @@ class Task:
     events: list[Event] = field(default_factory=list, hash=False, compare=False)
 
     @staticmethod
-    def create(id: TaskId, title: str) -> "Task":
+    def create(title: str) -> "Task":
         return Task(
-            id=id,
+            id=TaskId(uuid4()),
             title=title,
             status=TaskStatusEnum.PENDING,
             created_at=datetime.now(timezone.utc),
         )
 
-    def run(self):
+    def run(self) -> None:
         if self.status != TaskStatusEnum.PENDING:
             raise exc.TaskStatusIsNotPending
         self.status = TaskStatusEnum.RUNNING
         self.events.append(TaskRan(id=self.id))
 
-    def process(self):
+    def process(self) -> None:
         # Blocking bussiness logic
         sleep(10)
         mocked_result = random.choice([-1, 1])

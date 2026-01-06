@@ -4,13 +4,13 @@ from src.modules.task.service.unit_of_work import SqlAlchemyUnitOfWork
 from src.modules.task.service import commands, queries
 
 
-async def test_create_task(uow: SqlAlchemyUnitOfWork):
+async def test_create_task_successfully(uow: SqlAlchemyUnitOfWork):
     t = await commands.create_task(uow=uow, title="Test Task")
 
     assert t.title == "Test Task"
 
 
-async def test_get_task_detail(
+async def test_get_task_detail_successfully(
     uow: SqlAlchemyUnitOfWork, async_session_maker: async_sessionmaker[AsyncSession]
 ):
     created_task = await commands.create_task(uow=uow, title="Test Task")

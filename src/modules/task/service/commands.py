@@ -1,6 +1,5 @@
 import logging
 import asyncio
-from uuid import uuid4
 
 from . import exceptions as exc
 from .unit_of_work import IUnitOfWork
@@ -11,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 
 async def create_task(uow: IUnitOfWork, title: str) -> DomainTask:
-    domain_task = DomainTask.create(id=TaskId(uuid4()), title=title)
+    domain_task = DomainTask.create(title=title)
     async with uow:
         await uow.tasks.add(domain_task)
     return domain_task
