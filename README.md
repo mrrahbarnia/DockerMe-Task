@@ -1,4 +1,4 @@
-# DockerMe – Backend Test Task
+# Backend Test Task
 
 > FastAPI · Async Processing · Outbox Pattern
 
