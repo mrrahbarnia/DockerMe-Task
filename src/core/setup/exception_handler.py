@@ -3,26 +3,9 @@ from typing import Any
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
 
-from src.manager.config import ENVS
-from src.manager.common.constants import Environment
+from src.core.config import ENVS
 
-# ========================== Custom exception handler
-
-
-async def app_base_exception_handler(request: Request, exc: "AppBaseException"):
-    return JSONResponse(
-        status_code=exc.status_code,
-        content={
-            "success": exc.success,
-            "status_code": exc.status_code,
-            "message": exc.message,
-            "data": exc.data,
-        },
-    )
-
-
-def register_exception_handlers(app: FastAPI):
-    app.add_exception_handler(AppBaseException, app_base_exception_handler)  # type: ignore
+from src.modules.shared.constant import Environment
 
 
 class AppBaseException(HTTPException):
@@ -43,3 +26,20 @@ class AppBaseException(HTTPException):
         self.status_code = status_code
         self.success = success
         super().__init__(status_code=status_code)
+
+
+
+async def app_base_exception_handler(request: Request, exc: AppBaseException):
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={
+            "success": exc.success,
+            "message": exc.message,
+            "data": exc.data,
+        },
+    )
+
+
+
+def register_exception_handlers(app: FastAPI):
+    app.add_exception_handler(AppBaseException, app_base_exception_handler) # type: ignore

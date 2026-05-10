@@ -1,4 +1,4 @@
-from src.events.service.messagebus import handler_register
+from src.modules.events.service.messagebus import handler_register
 from ..domain.events import TaskRan
 from .commands import process_task
 from .unit_of_work import SqlAlchemyUnitOfWork

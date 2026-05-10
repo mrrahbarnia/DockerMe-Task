@@ -9,7 +9,7 @@ from alembic import context
 from src.manager.config import ENVS
 from src.manager.common.db_metadata import BaseModel
 from src.modules.task.adapters import orm as task_orm  # noqa
-from src.events.adapters import orm as event_orm  # noqa
+from src.modules.events.adapters import orm as event_orm  # noqa
 
 config = context.config
 

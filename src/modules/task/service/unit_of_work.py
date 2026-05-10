@@ -12,7 +12,7 @@ from ..adapters.repository import (
     SqlAlchemyRepository as TaskSqlAlchemyRepository,
 )
 from src.manager.dependencies.container import container
-from src.events.adapters.repository import (
+from src.modules.events.adapters.repository import (
     IRepository as EventIRepository,
     SqlAlchemyRepository as EventSqlAlchemyRepository,
 )

@@ -1,8 +1,9 @@
 from fastapi import FastAPI
 
-from src.manager.config import ENVS
-from src.manager.common.constants import Environment
 from .lifespan import lifespan
+
+from src.core.config import ENVS
+from src.modules.shared.constant import Environment
 
 
 app: FastAPI = FastAPI(

@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-from src.manager.config import ENVS
+from src.core.config import ENVS
 
 
 class LogConfig(BaseModel):

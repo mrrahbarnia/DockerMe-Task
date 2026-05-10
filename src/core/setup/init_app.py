@@ -1,8 +1,8 @@
 from fastapi import FastAPI
 
-from src.manager.application.app import app as fastapi_app
-from src.manager.application.exception_handler import register_exception_handlers
-from src.manager.application.routers import router
+from src.core.setup.app import app as fastapi_app
+from src.core.setup.exception_handler import register_exception_handlers
+from src.core.setup.routers import router
 
 
 def init_app(app: FastAPI) -> FastAPI:
