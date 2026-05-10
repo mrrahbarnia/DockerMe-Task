@@ -10,7 +10,7 @@ from sqlalchemy.ext.asyncio import (
 )
 
 from src.core.config import ENVS
-from src.modules.task.domain.types import TaskId
+from src.modules.task.domain.value_objects import TaskId
 
 ASYNC_ENGINE: AsyncEngine = create_async_engine(ENVS.POSTGRESQL.get_url)
 SESSION_MAKER: async_sessionmaker[AsyncSession] = async_sessionmaker(

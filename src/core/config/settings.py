@@ -1,7 +1,7 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from . import schemas
-from src.manager.common.constants import Environment
+from src.modules.shared.constant import Environment
 
 
 class _ENVS(BaseSettings):
@@ -12,6 +12,7 @@ class _ENVS(BaseSettings):
     ENVIRONMENT: Environment
     POSTGRESQL: schemas.PostgreSQL
     FASTAPI: schemas.FastAPI
+    OUTBOX: schemas.Outbox
 
 
 ENVS = _ENVS()  # type: ignore

@@ -1,9 +1,12 @@
 from dataclasses import dataclass
+from uuid import uuid4, UUID
 
-from .types import TaskId
-from src.manager.common.constants import Event
+from .value_objects import TaskId
+
+from src.modules.shared.constant import Event
 
 
 @dataclass(frozen=True)
 class TaskRan(Event):
-    id: TaskId
+    task_id: TaskId
+    event_id: UUID = uuid4()

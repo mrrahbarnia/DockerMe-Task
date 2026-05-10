@@ -5,18 +5,20 @@ from datetime import datetime, timezone
 from uuid import uuid4
 
 from . import exceptions as exc
-from .types import TaskId, TaskStatusEnum
+from .value_objects import TaskId, TaskStatusEnum
 from .events import TaskRan
-from src.manager.common.constants import Event
+from src.modules.shared.constant import Entity, Event
 
 
 @dataclass(unsafe_hash=True)
-class Task:
+class Task(Entity):
     id: TaskId
     title: str
     status: TaskStatusEnum
     created_at: datetime
-    events: list[Event] = field(default_factory=list, hash=False, compare=False)
+    events: list[Event] = field(
+        default_factory=list, hash=False, init=False, compare=False
+    )
 
     @staticmethod
     def create(title: str) -> "Task":
@@ -31,7 +33,7 @@ class Task:
         if self.status != TaskStatusEnum.PENDING:
             raise exc.TaskStatusIsNotPending
         self.status = TaskStatusEnum.RUNNING
-        self.events.append(TaskRan(id=self.id))
+        self.events.append(TaskRan(task_id=self.id))
 
     def process(self) -> None:
         # Blocking bussiness logic

@@ -2,30 +2,32 @@ import logging
 import asyncio
 
 from . import exceptions as exc
-from .unit_of_work import IUnitOfWork
 from ..domain.models import Task as DomainTask
-from ..domain.types import TaskId
+from ..domain.value_objects import TaskId
+
+from src.modules.shared.infrastructure.unit_of_work import UOW
+from src.modules.shared.constant import DBLock
 
 logger = logging.getLogger(__name__)
 
 
-async def create_task(uow: IUnitOfWork, title: str) -> DomainTask:
+async def create_task(uow: UOW, title: str) -> DomainTask:
     domain_task = DomainTask.create(title=title)
     async with uow:
         await uow.tasks.add(domain_task)
     return domain_task
 
 
-async def delete_task(uow: IUnitOfWork, task_id: TaskId) -> None:
+async def delete_task(uow: UOW, task_id: TaskId) -> None:
     async with uow:
         task = await uow.tasks.delete(task_id)
         if not task:
             raise exc.EntityNotFound
 
 
-async def run_task(uow: IUnitOfWork, task_id: TaskId) -> DomainTask:
+async def run_task(uow: UOW, task_id: TaskId) -> DomainTask:
     async with uow:
-        task = await uow.tasks.get_by_id(id=task_id, lock=True)
+        task = await uow.tasks.get_by_id(id=task_id, lock=DBLock(is_active=True))
         if not task:
             raise exc.EntityNotFound
         task.run()
@@ -33,7 +35,7 @@ async def run_task(uow: IUnitOfWork, task_id: TaskId) -> DomainTask:
         return task
 
 
-async def process_task(uow: IUnitOfWork, task_id: TaskId):
+async def process_task(uow: UOW, task_id: TaskId):
     async with uow:
         task = await uow.tasks.get_by_id(id=task_id)
         if not task:

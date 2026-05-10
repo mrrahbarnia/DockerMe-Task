@@ -3,8 +3,9 @@ from datetime import datetime
 
 from pydantic import BaseModel, Field, AfterValidator
 
-from ...domain.types import TaskId, TaskStatusEnum
-from src.manager.common.pagination_schema import PaginationSchema
+from ...domain.value_objects import TaskId, TaskStatusEnum
+
+from src.modules.shared.constant import PaginationSchema
 
 StrippedStr = Annotated[str, AfterValidator(lambda x: x.strip())]
 

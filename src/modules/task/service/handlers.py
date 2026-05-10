@@ -1,13 +1,10 @@
-from src.modules.events.service.messagebus import handler_register
+from src.modules.outbox.service.messagebus import handler_register
 from ..domain.events import TaskRan
 from .commands import process_task
-from .unit_of_work import SqlAlchemyUnitOfWork
+
+from src.modules.shared.constant import EventContext
 
 
 @handler_register(TaskRan)
-async def process_task_handler(
-    dict,
-) -> None:
-    event = TaskRan(**dict)
-    sqlachemy_uow = SqlAlchemyUnitOfWork()
-    await process_task(uow=sqlachemy_uow, task_id=event.id)
+async def process_task_handler(event: TaskRan, ctx: EventContext) -> None:
+    await process_task(uow=ctx.uow, task_id=event.task_id)

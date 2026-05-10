@@ -6,13 +6,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from . import schemas, http_exceptions
 from .http_response import HTTPResponse
-from ..dependencies import get_uow, get_session
+from ..dependencies import get_uow
 from ...domain import exceptions as domain_exc
-from ...domain.types import TaskId
+from ...domain.value_objects import TaskId
 from ...service import queries, commands, exceptions as service_exc
-from ...service.unit_of_work import SqlAlchemyUnitOfWork
 
-from src.manager.common.pagination_schema import (
+from src.modules.shared.dependencies import get_session
+from src.modules.shared.infrastructure.unit_of_work import UOW
+from src.modules.shared.constant import (
     PaginationResponse,
     PaginationResponseSchema,
 )
@@ -29,7 +30,7 @@ app = APIRouter(prefix="/v1/tasks", tags=["tasks"])
 )
 async def create_task(
     payload: schemas.CreateTaskRequest,
-    uow: Annotated[SqlAlchemyUnitOfWork, Depends(get_uow)],
+    uow: Annotated[UOW, Depends(get_uow)],
 ) -> HTTPResponse[schemas.CreateTaskResponse]:
     try:
         created_task = await commands.create_task(uow=uow, title=payload.title)
@@ -51,7 +52,7 @@ async def create_task(
 )
 async def delete_task(
     task_id: TaskId,
-    uow: Annotated[SqlAlchemyUnitOfWork, Depends(get_uow)],
+    uow: Annotated[UOW, Depends(get_uow)],
 ):
     try:
         await commands.delete_task(uow=uow, task_id=task_id)
@@ -70,7 +71,7 @@ async def delete_task(
     response_model=HTTPResponse[schemas.DetailTaskResponse],
 )
 async def run_task(
-    task_id: TaskId, uow: Annotated[SqlAlchemyUnitOfWork, Depends(get_uow)]
+    task_id: TaskId, uow: Annotated[UOW, Depends(get_uow)]
 ) -> HTTPResponse[schemas.DetailTaskResponse]:
     try:
         task = await commands.run_task(uow=uow, task_id=task_id)
@@ -124,7 +125,7 @@ async def list_tasks(
                 for t in tasks
             ],
             pagination=PaginationResponse(
-                current_page=query_parameters.current_page,
+                current_page=query_parameters.page_number,
                 page_size=query_parameters.page_size,
                 total=count if count else 0,
             ),

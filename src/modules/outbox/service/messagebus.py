@@ -1,8 +1,10 @@
+import logging
 from typing import Callable
 from collections import defaultdict
 
-from src.manager.common.constants import Event
+from src.modules.shared.constant import Event, EVENT_REGISTRY, EventContext
 
+logger = logging.getLogger(__name__)
 
 EVENT_HANDLERS: dict[str, list[Callable]] = defaultdict(list)
 
@@ -17,8 +19,15 @@ def handler_register(event_type: type[Event]):
     return decorator
 
 
-async def handle_event(event_type: str, payload: dict) -> None:
+async def handle_event(event_type: str, payload: dict, ctx: EventContext) -> None:
     handlers = EVENT_HANDLERS.get(event_type, [])
 
-    for handler in handlers:
-        await handler(payload)
+    event_cls = EVENT_REGISTRY.get(event_type)
+    if not event_cls:
+        logger.critical(f"Unknown event type: {event_type}")
+
+    else:
+        event = event_cls(**payload)
+
+        for handler in handlers:
+            await handler(event, ctx)
